@@ -59,14 +59,14 @@ def convert(o):
 # Convert to dict
 dataset_obj = generate_dataset_obj(decoded1)
 
-import csv
+# import csv
 
-w = csv.writer(open("output.csv", "w"))
-for key, val in dataset_obj.items():
-    w.writerow([key, val])
+# w = csv.writer(open("output.csv", "w"))
+# for key, val in dataset_obj.items():
+#     w.writerow([key, val])
 
 #with open('data.txt', 'w') as outfile:
     
 
 # Print it out
-# print_dataset_obj(dataset_obj)
+print_dataset_obj(dataset_obj)

@@ -1,5 +1,6 @@
 import torch
 import torch.nn as nn
+from torchvision.models.resnet import Bottleneck, resnet101
 
 class ResNetWrapper(nn.Module):
     '''
@@ -39,51 +40,32 @@ class ResNetWrapper(nn.Module):
         super(ResNetWrapper, self).__init__()
 
         # Preload base from TorchHub
-        self.net = torch.hub.load('pytorch/vision:v0.9.0', 'resnet101', pretrained=pretrained)
+        self.net = resnet101(pretrained=pretrained, progress=False)
 
         # Remove unnecessary layers
         del self.net.layer4
         del self.net.fc
         del self.net.avgpool
 
-        # add custom layers
+        # add custom layer
         upsample_layer = self.build_upsample_layer()
-
         self.net.add_module("upsample_layer", upsample_layer)
 
     def build_upsample_layer(self):
-        return nn.Sequential(
-            nn.Conv2d(1024, 1280, kernel_size=1)
+        # Configure necessary input sizes for new layer 4
+        self.net.inplanes = 1024
+        self.net.dilation = 1024
+
+        # Build Layer
+        upsample_layer = nn.Sequential(
+            # build replacement layer 4 with dilation enabled to preserve size while mimicking ResNet101 behavior closely
+            self.net._make_layer(Bottleneck, 512, 3, stride=2, dilate=True),
+
+            # Conv2d to scale up to necessary output and correct channel count
+            # Goes from (N, 2048, 60, 45) to (N, 1280, 120, 90)
+            nn.Conv2d(2048, 1280, kernel_size=2, stride=2)
         )
-
-    # def _make_layer(self, block: Type[Union[BasicBlock, Bottleneck]], planes: int, blocks: int,
-    #                 stride: int = 1, dilate: bool = False) -> nn.Sequential:
-    #     downsample = None
-    #     previous_dilation = self.dilation
-    #     if dilate:
-    #         self.dilation *= stride
-    #         stride = 1
-    #     if stride != 1 or self.inplanes != planes * block.expansion:
-    #         downsample = nn.Sequential(
-    #             conv1x1(self.inplanes, planes * block.expansion, stride),
-    #             norm_layer(planes * block.expansion),
-    #         )
-
-    #     in_planes = 1024
-    #     out_planes = 1280
-    #     planes = 512
-
-    #     layers = []
-    #     layers.append(block(in_planes, planes, stride, downsample, self.groups,
-    #                         self.base_width, previous_dilation, norm_layer))
-    #     self.inplanes = planes * block.expansion
-    #     for _ in range(1, blocks):
-    #         layers.append(block(self.inplanes, planes, groups=self.groups,
-    #                             base_width=self.base_width, dilation=self.dilation,
-    #                             norm_layer=nn.BatchNorm2d))
-# 
-        # return nn.Sequential(*layers)
-
+        return upsample_layer
 
     def forward(self, x):
         # Unaltered TorchHub layers
@@ -99,7 +81,6 @@ class ResNetWrapper(nn.Module):
 
         # Removed TorchHub Layers
         # x = self.net.layer4(x)
-
         # x = self.net.avgpool(x)
         # x = torch.flatten(x, 1)
         # x = self.net.fc(x)

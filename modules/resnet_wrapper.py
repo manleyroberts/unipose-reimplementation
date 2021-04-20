@@ -105,6 +105,6 @@ class ResNetWrapper(nn.Module):
         # x = self.net.fc(x)
 
         # Added Layers
-        # x = self.net.upsample_layer(x)
+        x = self.net.upsample_layer(x)
 
         return x, layer1_output

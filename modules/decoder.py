@@ -25,12 +25,11 @@ class Decoder(nn.Module):
 
     Figure 3: https://openaccess.thecvf.com/content_CVPR_2020/papers/Artacho_UniPose_Unified_Human_Pose_Estimation_in_Single_Images_and_Videos_CVPR_2020_paper.pdf
 
-    output dim: (N, 1280, 720, K)
+    K = output joint # (16)
+    output dim: (N, K, 1280, 720)
     '''
-    def __init__(self, device, low_level_features_shape=(1, 256, 240, 180), wasp_score_maps_shape=(1, 256, 120, 90), output_dim=(1, 16, 1280, 720), low_level_concat_features=48, hidden_size=256, dropout=0.2):
+    def __init__(self, low_level_features_shape=(1, 256, 240, 180), wasp_score_maps_shape=(1, 256, 120, 90), output_dim=(1, 16, 1280, 720), low_level_concat_features=48, hidden_size=256, dropout=0.2):
         super(Decoder, self).__init__()
-
-        self.device = device
         
         # Create ResNet LowLevel stream
         self.low_level_stream = nn.Sequential(

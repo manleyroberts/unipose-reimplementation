@@ -10,10 +10,9 @@ class WASP(nn.Module):
 
     output dim: (N, 256, 120, 90) (w, h, features)
     '''
-    def __init__(self, device, input_w=120, input_h=90, input_channels=1280, total_output_channels=256, output_channels=(60,60,60,60), rates=(6,12,18,24), core_kernel=3, hidden_size=256, avg_pool_kernel=3, avg_pool_output_channels=16):
+    def __init__(self, input_w=120, input_h=90, input_channels=1280, total_output_channels=256, output_channels=(60,60,60,60), rates=(6,12,18,24), core_kernel=3, hidden_size=256, avg_pool_kernel=3, avg_pool_output_channels=16):
         super(WASP, self).__init__()
 
-        self.device = device
         self.core_kernel = core_kernel
 
         # Every 3x3 conv "core" must have an output channel associated
@@ -76,4 +75,4 @@ class WASP(nn.Module):
         outputs.append(self.avg_pool(x))
 
         # cat all outputs together in channel dimension
-        return torch.cat(outputs, dim=1).to(self.device)
+        return torch.cat(outputs, dim=1)

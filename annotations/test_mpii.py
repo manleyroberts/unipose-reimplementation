@@ -4,31 +4,40 @@ import numpy as np
 import pickle
 import os
 from os import path
+from google.cloud import storage
 
 imagenamelist = []
 imagelist = []
 kptlist = []
 
-with open('post_estimation_datasets/valid.json') as f:
+with open('valid.json') as f:
     data = json.load(f)
-
+    
+bucket = storage_client.get_bucket('pose_estimation_datasets')
+    
 for i in range(len(data)):
     # if (data[i]['image'] == "000004812.jpg"):
     img_name = data[i]['image']
-    if  os.path.exists("pose_estimation_datasets/MPII/images/" + img_name):
-        kpt = np.asarray(data[i]['joints'], dtype=np.int32)
-        img = cv2.imread("pose_estimation_datasets/MPII/images/" + img_name)
-        imagenamelist.append(data[i]['image'])
+    
+    blob = bucket.blob('MPII/images/' +  img_name)
+    blob.content_type = 'image/jpeg'
+    image = np.asarray(bytearray(blob.download_as_string()))
+    img = cv2.imdecode(image, cv2.IMREAD_UNCHANGED)
+    
+#     if  os.path.exists("pose_estimation_datasets/MPII/images/" + img_name):
+    kpt = np.asarray(data[i]['joints'], dtype=np.int32)
+#     img = cv2.imread("pose_estimation_datasets/MPII/images/" + img_name)
+    imagenamelist.append(data[i]['image'])
 
-        if img.shape[0] != 960 or img.shape[1] != 720:
-            kpt[:,0] = kpt[:,0] * (960/img.shape[1])
-            kpt[:,1] = kpt[:,1] * (720/img.shape[0])
-            img = cv2.resize(img,(960,720))
-            img = np.array(img)
-        height, width, _ = img.shape
+    if img.shape[0] != 960 or img.shape[1] != 720:
+        kpt[:,0] = kpt[:,0] * (960/img.shape[1])
+        kpt[:,1] = kpt[:,1] * (720/img.shape[0])
+        img = cv2.resize(img,(960,720))
+        img = np.array(img)
+    height, width, _ = img.shape
 
-        imagelist.append(img)
-        kptlist.append(kpt)
+    imagelist.append(img)
+    kptlist.append(kpt)
 
 filename = 'test_image_name'
 outfile = open(filename,'wb')

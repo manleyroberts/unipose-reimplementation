@@ -12,9 +12,12 @@ kptlist = []
 
 with open('valid.json') as f:
     data = json.load(f)
-    
+
+storage_client = storage.Client("pose_estimation")
 bucket = storage_client.get_bucket('pose_estimation_datasets')
-    
+
+print(len(data))
+
 for i in range(len(data)):
     # if (data[i]['image'] == "000004812.jpg"):
     img_name = data[i]['image']
@@ -34,25 +37,40 @@ for i in range(len(data)):
         kpt[:,1] = kpt[:,1] * (720/img.shape[0])
         img = cv2.resize(img,(960,720))
         img = np.array(img)
-    height, width, _ = img.shape
-
+#     height, width, _ = img.shape
+    
     imagelist.append(img)
     kptlist.append(kpt)
 
-filename = 'test_image_name'
-outfile = open(filename,'wb')
-pickle.dump(imagenamelist, outfile)
-outfile.close()
+pickle_out = pickle.dumps(imagenamelist)
+nblob = bucket.blob('test_image_name')
+nblob.upload_from_string(pickle_out)
 
-filename = 'test_images'
-outfile = open(filename,'wb')
-pickle.dump(imagelist, outfile)
-outfile.close()
+pickle_out = pickle.dumps(imagelist)
+nblob = bucket.blob('test_images')
+nblob.upload_from_string(pickle_out)
 
-filename = 'test_joint_labels'
-outfile = open(filename,'wb')
-pickle.dump(kptlist, outfile)
-outfile.close()
+pickle_out = pickle.dumps(kptlist)
+nblob = bucket.blob('test_joint_labels')
+nblob.upload_from_string(pickle_out)    
+
+
+# filename = 'test_image_name'
+# outfile = open(filename,'wb')
+# pickle.dump(imagenamelist, outfile)
+# outfile.close()
+
+# filename = 'test_images'
+# outfile = open(filename,'wb')
+# pickle.dump(imagelist, outfile)
+# outfile.close()
+
+# filename = 'test_joint_labels'
+# outfile = open(filename,'wb')
+# pickle.dump(kptlist, outfile)
+# outfile.close()
+
+
 
 # filename = 'train_images'
 # infile = open(filename,'rb')

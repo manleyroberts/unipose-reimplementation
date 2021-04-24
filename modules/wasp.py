@@ -4,13 +4,13 @@ import torch.nn as nn
 class WASP(nn.Module):
     '''
     Waterfall Atrous Spatial Pooling
-    input dim: (N, 1280, 120, 90) (w, h, features)
+    input dim: (N, 1280, 90, 120) (w, h, features)
 
     Figure 4: https://openaccess.thecvf.com/content_CVPR_2020/papers/Artacho_UniPose_Unified_Human_Pose_Estimation_in_Single_Images_and_Videos_CVPR_2020_paper.pdf
 
-    output dim: (N, 256, 120, 90) (w, h, features)
+    output dim: (N, 256, 90, 120) (w, h, features)
     '''
-    def __init__(self, input_w=120, input_h=90, input_channels=1280, total_output_channels=256, output_channels=(60,60,60,60), rates=(6,12,18,24), core_kernel=3, hidden_size=256, avg_pool_kernel=3, avg_pool_output_channels=16):
+    def __init__(self, input_channels=1280, total_output_channels=256, output_channels=(60,60,60,60), rates=(6,12,18,24), core_kernel=3, hidden_size=256, avg_pool_kernel=3, avg_pool_output_channels=16):
         super(WASP, self).__init__()
 
         self.core_kernel = core_kernel

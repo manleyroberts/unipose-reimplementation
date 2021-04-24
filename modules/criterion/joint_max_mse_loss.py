@@ -5,7 +5,7 @@ class JointMaxMSELoss(nn.Module):
     '''
     Joint Max MSE Loss
     input: [
-        - (N, K, W, H) (N, features, w, h) - predicted feature maps
+        - (N, K, H, W) (N, features, h, w) - predicted feature maps
         - (N, K, 2)    (N, features, 2)    - expected maxes
     ]
 

@@ -1,34 +1,21 @@
 import torch
 import torch.nn as nn
-import torch.nn.functional as F
-
-class BilinearInterpolation(nn.Module):
-    def __init__(self, output_size):
-        super(BilinearInterpolation, self).__init__()
-        self.interpolate_func = F.interpolate
-        self.output_size = output_size
-    
-    def forward(self, x):
-        return self.interpolate_func(x, size=self.output_size, mode='bilinear', align_corners=False)
-
-    def __repr__(self):
-        rep = f'BilinearInterpolation({self.output_size})'
-        return rep
+from bilinear_interpolation import BilinearInterpolation
 
 class Decoder(nn.Module):
     '''
     Decoder for UniPose Architecture
     input: [
-        - ResNet Low Level Features (N, 256, 240, 180)
-        - WASP Score Maps (N, 256, 120, 90)
+        - ResNet Low Level Features (N, 256, 180, 240)
+        - WASP Score Maps (N, 256, 90, 120)
     ]
 
     Figure 3: https://openaccess.thecvf.com/content_CVPR_2020/papers/Artacho_UniPose_Unified_Human_Pose_Estimation_in_Single_Images_and_Videos_CVPR_2020_paper.pdf
 
     K = output joint # (16)
-    output dim: (N, K, 1280, 720)
+    output dim: (N, K, 720, 960)
     '''
-    def __init__(self, low_level_features_shape=(1, 256, 240, 180), wasp_score_maps_shape=(1, 256, 120, 90), output_dim=(1, 16, 960, 720), low_level_concat_features=48, hidden_size=256, dropout=0.2):
+    def __init__(self, low_level_features_shape=(1, 256, 180, 240), wasp_score_maps_shape=(1, 256, 90, 120), output_dim=(1, 16, 720, 960), low_level_concat_features=48, hidden_size=256, dropout=0.2):
         super(Decoder, self).__init__()
         
         # Create ResNet LowLevel stream
@@ -39,7 +26,7 @@ class Decoder(nn.Module):
 
         # Create WASP Score Maps stream
         self.wasp_score_maps_stream = nn.Sequential(
-            BilinearInterpolation(output_size=(120,90))
+            BilinearInterpolation(output_size=(90,120))
         )
 
         # Create combined stream

@@ -5,7 +5,7 @@ from torchvision.models.resnet import Bottleneck, resnet101
 class ResNetWrapper(nn.Module):
     '''
     Wrapper to configure ResNet101 as needed for our architecture.
-    input dim: (N, 3, 960, 720) (w, h, features)
+    input dim: (N, 3, 720, 960) (batch, features, h, w)
 
     Structure:
 
@@ -30,11 +30,11 @@ class ResNetWrapper(nn.Module):
     ]
     CUSTOM ADDED TO END: [
         - upsample layer:
-            dilated version of Bottleneck used to upsample from layer 3 output of shape (N, 1024, 60, 45) to (N, 1280, 120, 90)
+            dilated version of Bottleneck used to upsample from layer 3 output of shape (N, 1024, 45, 60) to (N, 1280, 90, 120)
     ]
     
     Notice that image has been downsampled 8 times.
-    output dim: (N, 256, 120, 90) (w, h, features)
+    output dim: (N, 256, 90, 120) (w, h, features)
     '''
     def __init__(self, pretrained=True):
         super(ResNetWrapper, self).__init__()
@@ -62,8 +62,8 @@ class ResNetWrapper(nn.Module):
             self.net._make_layer(Bottleneck, 512, 3, stride=2, dilate=True),
 
             # Conv2d to scale up to necessary output and correct channel count
-            # Goes from (N, 2048, 60, 45) to (N, 1280, 120, 90)
-            nn.Conv2d(2048, 1280, kernel_size=2, stride=2)
+            # Goes from (N, 2048, 45, 60) to (N, 1280, 90, 120)
+            nn.ConvTranspose2d(2048, 1280, kernel_size=2, stride=2)
         )
         return upsample_layer
 

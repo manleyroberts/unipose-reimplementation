@@ -1,0 +1,1 @@
+{"annolist": [{"image": {"name": "037454012.jpg"}, "annorect": [{"scale": 3.8807339512004684, "objpos": {"x": 

@@ -18,14 +18,15 @@ class DistributionDifferenceLoss(nn.Module):
 
     output dim: (1) Loss
     '''
-    def __init__(self, stride=8, sigma=3, input_shape=(1,16,720,960)):
+    def __init__(self, device, stride=8, sigma=3, input_shape=(1,16,720,960)):
         super(DistributionDifferenceLoss, self).__init__()
+        self.device = device
         self.stride = stride
         self.sigma = sigma
         self.input_shape = input_shape
 
         self.bilinear = BilinearInterpolation(output_size=(self.input_shape[2]//self.stride, self.input_shape[3]//self.stride))
-        self.softmax = nn.Softmax()
+        self.softmax = nn.Softmax(dim=2)
         self.loss = nn.MSELoss()
 
     def gaussian_kernel(self, h, w, center):
@@ -37,12 +38,12 @@ class DistributionDifferenceLoss(nn.Module):
         den = 2 * np.square(self.sigma)
         ans = np.exp(num/den)
         normalized = ans/np.sum(ans)
-        return torch.Tensor(ans)
+        return torch.Tensor(ans).to(self.device)
 
     def expected_to_gaussian(self, expected_list):
         # Build gaussian maps for all expected
         N, K, H, W = self.input_shape
-        heatmap = torch.zeros((N, K, H//self.stride, W//self.stride))
+        heatmap = torch.zeros((N, K, H//self.stride, W//self.stride)).to(self.device)
         for n in range(N):
             for k in range(K):
                 heatmap[n, k, :, :] = self.gaussian_kernel(H, W, expected_list[n][k])

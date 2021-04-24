@@ -11,7 +11,7 @@ class JointMaxMSELoss(nn.Module):
 
     Mean across all examples of MSE between max of output map from UniPose and given max
 
-    output dim: (N, 256, 120, 90) (w, h, features)
+    output dim: (1) Loss
     '''
     def __init__(self):
         super(JointMaxMSELoss, self).__init__()

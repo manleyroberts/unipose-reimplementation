@@ -1,10 +1,8 @@
-import sys
-sys.path.insert(1, '../')
 
 import torch
 import torch.nn as nn
 import numpy as np
-from bilinear_interpolation import BilinearInterpolation
+from ..bilinear_interpolation import BilinearInterpolation
 
 class DistributionDifferenceLoss(nn.Module):
     '''
@@ -32,7 +30,7 @@ class DistributionDifferenceLoss(nn.Module):
     def gaussian_kernel(self, h, w, center):
         # Build a gaussian map
         x,y = center
-        h, w, x, y = h//self.stride, w//self.stride, x//self.stride, y//self.stride
+        h, w, x, y = h//self.stride, w//self.stride, np.array(x//self.stride), np.array(y//self.stride)
         ycoords, xcoords = np.mgrid[0:h, 0:w]
         num = -1 * (np.square(ycoords - y) + np.square(xcoords - x))
         den = 2 * np.square(self.sigma)
@@ -42,7 +40,8 @@ class DistributionDifferenceLoss(nn.Module):
 
     def expected_to_gaussian(self, expected_list):
         # Build gaussian maps for all expected
-        N, K, H, W = self.input_shape
+        _, K, H, W = self.input_shape
+        N = expected_list.shape[0]
         heatmap = torch.zeros((N, K, H//self.stride, W//self.stride)).to(self.device)
         for n in range(N):
             for k in range(K):

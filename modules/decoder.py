@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from bilinear_interpolation import BilinearInterpolation
+from .bilinear_interpolation import BilinearInterpolation
 
 class Decoder(nn.Module):
     '''

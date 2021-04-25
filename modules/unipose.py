@@ -1,9 +1,9 @@
 import torch
 import torch.nn as nn
 
-from decoder import Decoder
-from wasp import WASP
-from resnet_wrapper import ResNetWrapper
+from .decoder import Decoder
+from .wasp import WASP
+from .resnet_wrapper import ResNetWrapper
 
 class UniPose(nn.Module):
     '''

@@ -27,41 +27,41 @@ class DistributionDifferenceLoss(nn.Module):
         self.softmax = nn.Softmax(dim=2)
         self.loss = nn.MSELoss()
 
-    def gaussian_kernel(self, h, w, center):
-        # Build a gaussian map
-        x,y = center
-        h, w, x, y = h//self.stride, w//self.stride, np.array(x//self.stride), np.array(y//self.stride)
-        ycoords, xcoords = np.mgrid[0:h, 0:w]
-        num = -1 * (np.square(ycoords - y) + np.square(xcoords - x))
-        den = 2 * np.square(self.sigma)
-        ans = np.exp(num/den)
-        normalized = ans/np.sum(ans)
-        return torch.Tensor(ans).to(self.device)
+#     def gaussian_kernel(self, h, w, center):
+#         # Build a gaussian map
+#         x,y = center
+#         h, w, x, y = h//self.stride, w//self.stride, np.array(x//self.stride), np.array(y//self.stride)
+#         ycoords, xcoords = np.mgrid[0:h, 0:w]
+#         num = -1 * (np.square(ycoords - y) + np.square(xcoords - x))
+#         den = 2 * np.square(self.sigma)
+#         ans = np.exp(num/den)
+#         normalized = ans/np.sum(ans)
+#         return torch.Tensor(ans).to(self.device)
 
-    def expected_to_gaussian(self, expected_list):
-        # Build gaussian maps for all expected
-        _, K, H, W = self.input_shape
-        N = expected_list.shape[0]
-        heatmap = torch.zeros((N, K, H//self.stride, W//self.stride)).to(self.device)
-        for n in range(N):
-            for k in range(K):
-                heatmap[n, k, :, :] = self.gaussian_kernel(H, W, expected_list[n][k])
-        return heatmap
+#     def expected_to_gaussian(self, expected_list):
+#         # Build gaussian maps for all expected
+#         _, K, H, W = self.input_shape
+#         N = expected_list.shape[0]
+#         heatmap = torch.zeros((N, K, H//self.stride, W//self.stride)).to(self.device)
+#         for n in range(N):
+#             for k in range(K):
+#                 heatmap[n, k, :, :] = self.gaussian_kernel(H, W, expected_list[n][k])
+#         return heatmap
 
-    def forward(self, predicted, expected):
+    def forward(self, predicted, expected_maps):
         # if stride != 1 rescale predicted
         rescaled = self.bilinear(predicted)
 
         # get Softmax over 2D image channels
-        input_view = predicted.view(predicted.shape[0], predicted.shape[0], 1, -1)
+        input_view = rescaled.view(rescaled.shape[0], rescaled.shape[0], 1, -1)
         output_view = self.softmax(input_view)
-        softmax_output = output_view.view(predicted.shape)
+        softmax_output = output_view.view(rescaled.shape)
 
         # get gaussian maps for expected
-        expected_maps = self.expected_to_gaussian(expected)
+#         expected_maps = self.expected_to_gaussian(expected)
 
         # get MSELoss between predicted and expected
-        loss = self.loss(rescaled, expected_maps)
+        loss = self.loss(softmax_output, expected_maps)
         
         return loss
 

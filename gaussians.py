@@ -18,7 +18,7 @@ class Gaussians(nn.Module):
         den = 2 * np.square(self.sigma)
         ans = np.exp(num/den)
         normalized = ans/np.sum(ans)
-        tensor_out = torch.Tensor(ans)
+        tensor_out = torch.HalfTensor(ans)
         tensor_out.requires_grad = False
         return tensor_out
 
@@ -26,7 +26,7 @@ class Gaussians(nn.Module):
         # Build gaussian maps for all expected
         _, K, H, W = self.input_shape
         N = len(expected_list)
-        heatmap = torch.zeros((N, K, H//self.stride, W//self.stride)).to(self.device)
+        heatmap = torch.zeros((N, K, H//self.stride, W//self.stride), dtype=torch.half)
         for n in range(N):
             for k in range(K):
                 heatmap[n, k, :, :] = self.gaussian_kernel(H, W, expected_list[n][k])

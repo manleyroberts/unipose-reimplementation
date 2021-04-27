@@ -4,8 +4,7 @@ import numpy as np
 
 class Gaussians(nn.Module):
 
-    def __init__(self, device, stride=8, sigma=3, input_shape=(1,16,720,960)):
-        self.device = device
+    def __init__(self, stride=1, sigma=3, input_shape=(1,16,368,368)):
         self.stride = stride
         self.sigma = sigma
         self.input_shape = input_shape
@@ -19,14 +18,17 @@ class Gaussians(nn.Module):
         den = 2 * np.square(self.sigma)
         ans = np.exp(num/den)
         normalized = ans/np.sum(ans)
-        return torch.Tensor(ans).to(self.device)
+        tensor_out = torch.Tensor(ans)
+        tensor_out.requires_grad = False
+        return tensor_out
 
     def expected_to_gaussian(self, expected_list):
         # Build gaussian maps for all expected
         _, K, H, W = self.input_shape
-        N = expected_list.shape[0]
+        N = len(expected_list)
         heatmap = torch.zeros((N, K, H//self.stride, W//self.stride)).to(self.device)
         for n in range(N):
             for k in range(K):
                 heatmap[n, k, :, :] = self.gaussian_kernel(H, W, expected_list[n][k])
+        heatmap.requires_grad = False
         return heatmap

@@ -16,7 +16,7 @@ class DistributionDifferenceLoss(nn.Module):
 
     output dim: (1) Loss
     '''
-    def __init__(self, device, stride=8, sigma=3, input_shape=(1,16,720,960)):
+    def __init__(self, device, stride=1, sigma=3, input_shape=(1,16,368,368)):
         super(DistributionDifferenceLoss, self).__init__()
         self.device = device
         self.stride = stride
@@ -53,7 +53,7 @@ class DistributionDifferenceLoss(nn.Module):
         rescaled = self.bilinear(predicted)
 
         # get Softmax over 2D image channels
-        input_view = rescaled.view(rescaled.shape[0], rescaled.shape[0], 1, -1)
+        input_view = rescaled.view(rescaled.shape[0], rescaled.shape[1], -1)
         output_view = self.softmax(input_view)
         softmax_output = output_view.view(rescaled.shape)
 

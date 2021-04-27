@@ -15,7 +15,7 @@ class Decoder(nn.Module):
     K = output joint # (16)
     output dim: (N, K, 720, 960)
     '''
-    def __init__(self, low_level_features_shape=(1, 256, 180, 240), wasp_score_maps_shape=(1, 256, 90, 120), output_dim=(1, 16, 720, 960), low_level_concat_features=48, hidden_size=256, dropout=0.2):
+    def __init__(self, low_level_features_shape=(1, 256, 92, 92), wasp_score_maps_shape=(1, 256, 46, 46), output_dim=(1, 16, 368, 368), low_level_concat_features=48, hidden_size=256, dropout=0.2):
         super(Decoder, self).__init__()
         
         # Create ResNet LowLevel stream
@@ -26,7 +26,7 @@ class Decoder(nn.Module):
 
         # Create WASP Score Maps stream
         self.wasp_score_maps_stream = nn.Sequential(
-            BilinearInterpolation(output_size=(90,120))
+            BilinearInterpolation(output_size=(46,46))
         )
 
         # Create combined stream

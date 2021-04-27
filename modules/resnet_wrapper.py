@@ -5,7 +5,7 @@ from torchvision.models.resnet import Bottleneck, resnet101
 class ResNetWrapper(nn.Module):
     '''
     Wrapper to configure ResNet101 as needed for our architecture.
-    input dim: (N, 3, 720, 960) (batch, features, h, w)
+    input dim: (N, 3, 368, 368) (batch, features, h, w)
 
     Structure:
 

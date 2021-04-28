@@ -22,7 +22,8 @@ class Gaussians(nn.Module):
             num = -1 * (np.square(ycoords - y) + np.square(xcoords - x))
             den = 2 * np.square(self.sigma)
             ans = np.exp(num/den)
-            ans = normalize(ans)
+            ans = ans/(np.sum(ans))
+            #ans = normalize(ans)
         tensor_out = torch.HalfTensor(ans)
         tensor_out.requires_grad = False
         return tensor_out

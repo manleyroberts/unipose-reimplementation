@@ -15,7 +15,7 @@ class Decoder(nn.Module):
     K = output joint # (16)
     output dim: (N, K, 720, 960)
     '''
-    def __init__(self, low_level_features_shape=(1, 256, 92, 92), wasp_score_maps_shape=(1, 256, 46, 46), output_dim=(1, 16, 368, 368), low_level_concat_features=48, hidden_size=256, dropout=0.2):
+    def __init__(self, low_level_features_shape=(1, 256, 92, 92), wasp_score_maps_shape=(1, 256, 46, 46), output_dim=(1, 16, 46, 46), low_level_concat_features=48, hidden_size=256, dropout=0.2):
         super(Decoder, self).__init__()
         
         # Create ResNet LowLevel stream

@@ -9,7 +9,7 @@ class BilinearInterpolation(nn.Module):
         self.output_size = output_size
     
     def forward(self, x):
-        return self.interpolate_func(x, size=self.output_size, mode='bilinear', align_corners=False)
+        return self.interpolate_func(x, size=self.output_size, mode='bilinear', align_corners=True)
 
     def __repr__(self):
         rep = f'BilinearInterpolation({self.output_size})'

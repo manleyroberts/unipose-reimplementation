@@ -32,13 +32,13 @@ class DistributionDifferenceLoss(nn.Module):
         rescaled = self.bilinear(predicted)
 
         # get Softmax over 2D image channels
-        input_view = rescaled.view(rescaled.shape[0], rescaled.shape[1], -1)
-        output_view = self.softmax(input_view)
-        softmax_output = output_view.view(rescaled.shape)
+        # input_view = rescaled.view(rescaled.shape[0], rescaled.shape[1], -1)
+        # output_view = self.softmax(input_view)
+        # softmax_output = output_view.view(rescaled.shape)
 
         # get MSELoss between predicted and expected
-        adjusted_expected = torch.where(expected_maps < 0, softmax_output, expected_maps)
-        loss = self.loss(softmax_output, adjusted_expected)
+        adjusted_expected = torch.where(expected_maps < 0, rescaled, expected_maps)
+        loss = self.loss(rescaled, adjusted_expected)
         return loss
 
 

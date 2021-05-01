@@ -36,7 +36,7 @@ class ResNetWrapper(nn.Module):
     Notice that image has been downsampled 8 times.
     output dim: (N, 256, 90, 120) (w, h, features)
     '''
-    def __init__(self, pretrained=True):
+    def __init__(self, pretrained=False):
         super(ResNetWrapper, self).__init__()
 
         # Preload base from TorchHub
@@ -59,11 +59,12 @@ class ResNetWrapper(nn.Module):
         # Build Layer
         upsample_layer = nn.Sequential(
             # build replacement layer 4 with dilation enabled to preserve size while mimicking ResNet101 behavior closely
-            self.net._make_layer(Bottleneck, 512, 3, stride=2, dilate=True),
+            # self.net._make_layer(Bottleneck, 512, 3, stride=2, dilate=True),
 
             # Conv2d to scale up to necessary output and correct channel count
             # Goes from (N, 2048, 45, 60) to (N, 1280, 90, 120)
-            nn.ConvTranspose2d(2048, 1280, kernel_size=2, stride=2)
+            # nn.ConvTranspose2d(2048, 1280, kernel_size=2, stride=2)
+            nn.ConvTranspose2d(1024, 1280, kernel_size=2, stride=2)
         )
         return upsample_layer
 

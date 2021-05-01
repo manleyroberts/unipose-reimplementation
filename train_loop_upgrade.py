@@ -24,6 +24,7 @@ import importlib
 import signal
 import sys
 import gaussians
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 class TrainLoopUpgrade():
     
@@ -136,6 +137,8 @@ class TrainLoopUpgrade():
         print("device: %s" % device)
         # device = 'cpu'
 
+        
+
 
         # In[2]:
 
@@ -150,7 +153,7 @@ class TrainLoopUpgrade():
         storage_client = storage.Client("pose_estimation_2")
         bucket = storage_client.get_bucket('pose_estimation_2_dataset_mpii')
 
-        NUM_TRAIN = 22246
+        NUM_TRAIN = 16
         NUM_TEST = 2958
 
         # In[ ]:
@@ -207,8 +210,10 @@ class TrainLoopUpgrade():
 
         from sklearn.model_selection import train_test_split
 
-        train_torch_image, val_torch_image = train_test_split(torch_image, test_size = 0.25)
-        train_expected_maps, val_expected_maps = train_test_split(expected_maps, test_size = 0.25)
+        # train_torch_image, val_torch_image = torch_image, torch_image
+        train_torch_image, val_torch_image = train_test_split(torch_image, test_size = 0.25, shuffle = False)
+        # train_expected_maps, val_expected_maps = expected_maps, expected_maps
+        train_expected_maps, val_expected_maps = train_test_split(expected_maps, test_size = 0.25, shuffle = False)
 
 
         # In[ ]:
@@ -267,6 +272,7 @@ class TrainLoopUpgrade():
             model = modules.unipose.UniPose().to(device)
             criterion = modules.criterion.distribution_difference_loss.DistributionDifferenceLoss(device)
             optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate) if optimizer_type == 'ADAM' else None
+            scheduler = ReduceLROnPlateau(optimizer, 'min')
 
             train_epoch_losses = []
             val_epoch_losses = []
@@ -285,6 +291,7 @@ class TrainLoopUpgrade():
                 val_epoch_loss, is_normal = self.validation(epoch, model, criterion, val_torch_image, val_expected_maps, batch_size)
                 if not is_normal:
                     break
+                scheduler.step(sum(val_epoch_loss))
 
                 print(f'Epoch: {epoch}, Training Average Batch Loss: {sum(train_epoch_loss) / len(train_epoch_loss)}')
                 print(f'Epoch: {epoch}, Validation Average Batch Loss: {sum(val_epoch_loss) / len(val_epoch_loss)}')

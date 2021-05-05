@@ -148,7 +148,7 @@ class TrainLoopUpgrade():
         with open('annotations/train.json') as f:
             train_data = json.load(f)
 
-        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "pose-estimation-2-dc39bc540ba3.json"
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = ""
 
         storage_client = storage.Client("pose_estimation_2")
         bucket = storage_client.get_bucket('pose_estimation_2_dataset_mpii')

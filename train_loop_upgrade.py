@@ -153,7 +153,7 @@ class TrainLoopUpgrade():
         storage_client = storage.Client("pose_estimation_2")
         bucket = storage_client.get_bucket('pose_estimation_2_dataset_mpii')
 
-        NUM_TRAIN = 16
+        NUM_TRAIN = 1
         NUM_TEST = 2958
 
         # In[ ]:
@@ -170,6 +170,7 @@ class TrainLoopUpgrade():
         # For each image, load the image
         for i in range(NUM_TRAIN):
             img_name = train_data[i]['image']
+            print(img_name)
 
             blob = bucket.blob('MPII/images/' +  img_name)
             blob.content_type = 'image/jpeg'
